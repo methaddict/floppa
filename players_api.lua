@@ -1,23 +1,12 @@
---vars
-players = {}
-
+local players = {}
+local playerapi = {};
 --init
-for i,v in pairs(game.Players:GetChildren()) do
-    table.insert(players, v.Name)
-end
-
---functions
-game:GetService("Players").PlayerAdded:Connect(function(player)
-    print("player joined ".. player.Name)
-    table.insert(players, player.Name)
-end)
-game:GetService("Players").PlayerRemoving:Connect(function(player)
-	print("player left ".. player.Name)
-    table.remove(players, table.find(players, player.Name))
-end)
+for i,v in pairs(game.Players:GetChildren()) do table.insert(players, v.Name) end
+game:GetService("Players").PlayerAdded:Connect(function(player) table.insert(players, player.Name) end)
+game:GetService("Players").PlayerRemoving:Connect(function(player) table.remove(players, table.find(players, player.Name)) end)
 
 --modules
-function getPlayerId(input)
+function playerapi:getPlayerId(input)
     for i = 1, #players do 
         local v = players[i]
         if v == input then
@@ -25,7 +14,7 @@ function getPlayerId(input)
         end
     end
 end
-function getPlayerName(input)
+function playerapi:getPlayerName(input)
     for i = 1, #players do 
         local v = players[i]
         if i == input then 
@@ -33,13 +22,10 @@ function getPlayerName(input)
         end
     end
 end
-function getPlayers()
+function playerapi:getPlayers()
     return players
 end
-function getPlayerCount()
-    count = 0
-    for i = 1, #players do 
-        count = i 
-    end
-    return count
+function playerapi:getPlayerCount()
+    return #players
 end
+return playerapi;
