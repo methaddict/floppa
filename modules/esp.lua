@@ -2,6 +2,7 @@ local ESP = {
 	Enabled = false,
 	Tracers = true,
 	Boxes = true,
+	Skeleton = true,
 	ShowInfo = true,
 	UseTeamColor = true,
 	TeamColor = Color3.new(0, 1, 0),
@@ -9,16 +10,21 @@ local ESP = {
 	ShowTeam = true,
 	Info = {
 		["Name"] = true,
-  ["Health Bar"] = true,
+        ["Health Bar"] = true,
 		["Health Text"] = true,
 		["Weapons"] = true,
 		["Distance"] = true
 	},
+
+	SkeletonColor = Color3.fromRGB(255,255,255),
+	DistanceColor = Color3.fromRGB(0,255,0),
 	BoxShift = CFrame.new(0, -1.5, 0),
 	BoxSize = Vector3.new(4, 6, 0),
 	Color = Color3.fromRGB(255, 255, 255),
+    HealthColor = Color3.fromRGB(0, 255, 0),
+	HealthTextColor = Color3.fromRGB(0,255,0),
 	TargetPlayers = true,
-	FaceCamera = false, -- i changed last time
+	FaceCamera = true, -- i changed last time
 	Thickness = 1,
 	AttachShift = 1,
 	Objects = setmetatable({}, {__mode="kv"}),
@@ -249,6 +255,18 @@ function boxBase:Update()
 		self.Components.QuadOutline.Visible = false
 	end
 
+	--[[if ESP.Skeleton then 
+		local characterrootpart_3d = Char.HumanoidRootPart.Position
+		local characterrootpart_2d = WorldToViewportPoint(CurrentCamera, characterrootpart_3d)
+		
+		local head_w2p = WorldToViewportPoint(CurrentCamera, Char.Head.Position)
+		local torsoupper_w2p = Currenamera:WorldToViewportPoint(CurrentCamera, Char.Torso.Position + Vector3.new(0,1,0))
+		
+		self.Components.skel_head.From = Vector2.new(head_w2p.X, head_w2p.Y)
+		self.Components.skel_head.To = Vector2.new(torsoupper_w2p.X, torsoupper_w2p.Y)
+		self.Components.skel_head.Visible = true
+	end]]
+
 	if ESP.ShowInfo then
 		local TagPos, Vis5 = WorldToViewportPoint(CurrentCamera, locs.TagPos.p)
 
@@ -272,8 +290,18 @@ function boxBase:Update()
 					self.Components["Health Text"].Outline = true
 					self.Components["Health Text"].Position = Vector2.new(self.Components.Quad.Position.X + (self.Components.Quad.Size.X / 2) + (self.Components.Quad.Size.X / 2) + (5), self.Components.Quad.Position.Y + (self.Components.Quad.Size.Y + yoff))
 					--self.Components["Health Text"].Position = Vector2.new((self.Components.QuadOutline.Position.X + (self.Components.QuadOutline.Size.X / 2) - (self.Components.QuadOutline.Size.X / 2)) - (10 * (off/3)), self.Components.QuadOutline.Position.Y + (self.Components.QuadOutline.Size.Y - 2) * (Char:FindFirstChildOfClass("Humanoid").Health / Char:FindFirstChildOfClass("Humanoid").MaxHealth))
-					self.Components["Health Text"].Text = tostring(math.floor(Char:FindFirstChildOfClass("Humanoid").Health)/math.floor(Char:FindFirstChildOfClass("Humanoid").MaxHealth)*100).."%"
-					self.Components["Health Text"].Color = color
+					local inv = false
+					for i,v in pairs(Char:GetChildren()) do
+						if v:IsA("ForceField") then
+							inv = true
+						end
+					end
+					if inv == false then 
+						self.Components["Health Text"].Text = tostring(math.floor(Char:FindFirstChildOfClass("Humanoid").Health)/math.floor(Char:FindFirstChildOfClass("Humanoid").MaxHealth)*100).."%"
+					else
+						self.Components["Health Text"].Text = tostring(math.floor(Char:FindFirstChildOfClass("Humanoid").Health)/math.floor(Char:FindFirstChildOfClass("Humanoid").MaxHealth)*100).."% *invincible*"
+					end
+					self.Components["Health Text"].Color = ESP.HealthTextColor
     yoff = yoff + 15
 				else
 					self.Components["Health Text"].Visible = false
@@ -293,8 +321,8 @@ function boxBase:Update()
 				self.Components.Weapons.Outline = true
 				self.Components.Weapons.Position = Vector2.new(self.Components.Quad.Position.X + (self.Components.Quad.Size.X / 2) + (self.Components.Quad.Size.X / 2) + (5), self.Components.Quad.Position.Y + (self.Components.Quad.Size.Y - 2 + yoff))
 				self.Components.Weapons.Text = "".. equipped
-				self.Components.Weapons.Color = color
-    yoff = yoff + 15
+				self.Components.Weapons.Color = ESP.HealthTextColor
+				yoff = yoff + 15
 			else
 				self.Components.Weapons.Visible = false
 			end
@@ -307,15 +335,15 @@ function boxBase:Update()
 				self.Components.Distance.Size = 13
 				self.Components.Distance.Position = Vector2.new(self.Components.Quad.Position.X + (self.Components.Quad.Size.X / 2) + (self.Components.Quad.Size.X / 2) + (5), self.Components.Quad.Position.Y + (self.Components.Quad.Size.Y - 2 + yoff))
 				self.Components.Distance.Text = ""..math.floor((CurrentCamera.CFrame.p - cf.p).magnitude).." studs"
-				self.Components.Distance.Color = color
-    yoff = yoff + 15
+				self.Components.Distance.Color = ESP.DistanceColor
+				yoff = yoff + 15
 			else
 				self.Components.Distance.Visible = false
 			end
 
 			if ESP.Info.Name == true then
 				self.Components.Name.Visible = true
-				self.Components.Name.Position = Vector2.new(self.Components.Quad.Position.X + (self.Components.Quad.Size.X / 2), self.Components.Quad.Position.Y + self.Components.Quad.Size.Y - 14)
+				self.Components.Name.Position = Vector2.new(self.Components.Quad.Position.X + (self.Components.Quad.Size.X / 2), self.Components.Quad.Position.Y + self.Components.Quad.Size.Y - 16)
 				self.Components.Name.Font = 2
 				self.Components.Name.Size = 13
 				self.Components.Name.Text = self.Name:lower()
@@ -380,6 +408,13 @@ function ESP:Add(obj, options)
 		self:GetBox(obj):Remove()
 	end
 
+	box.Components.skel_head = Draw("Line", {
+		Thickness = 1,
+		Color = ESP.SkeletonColor,
+		Visible = false,
+		ZIndex = 14
+	})
+
 	box.Components["Quad"] = Draw("Square", {
 		Thickness = self.Thickness,
 		Color = color,
@@ -422,7 +457,7 @@ function ESP:Add(obj, options)
 
  box.Components["Health Bar"] = Draw("Line",{
   Thickness = 1,
-  Color = box.Color
+  Color = ESP.HealthColor
  })
 
 	box.Components["Weapons"] = Draw("Text", {
@@ -537,4 +572,7 @@ game:GetService("RunService").RenderStepped:Connect(function()
     end
 end)
 
-return ESP;
+ESP.Enabled = true
+ESP.Tracers = false;
+ESP.Info.Distance = true;
+ESP.FaceCamera = false;
