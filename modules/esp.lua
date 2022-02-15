@@ -18,6 +18,7 @@ local ESP = {
 
 	SkeletonColor = Color3.fromRGB(255,255,255),
 	DistanceColor = Color3.fromRGB(0,255,0),
+	ToolColor = Color3.fromRGB(0,255,0),
 	BoxShift = CFrame.new(0, -1.5, 0),
 	BoxSize = Vector3.new(4, 6, 0),
 	Color = Color3.fromRGB(255, 255, 255),
@@ -321,7 +322,7 @@ function boxBase:Update()
 				self.Components.Weapons.Outline = true
 				self.Components.Weapons.Position = Vector2.new(self.Components.Quad.Position.X + (self.Components.Quad.Size.X / 2) + (self.Components.Quad.Size.X / 2) + (5), self.Components.Quad.Position.Y + (self.Components.Quad.Size.Y - 2 + yoff))
 				self.Components.Weapons.Text = "".. equipped
-				self.Components.Weapons.Color = ESP.HealthTextColor
+				self.Components.Weapons.Color = ESP.ToolColor
 				yoff = yoff + 15
 			else
 				self.Components.Weapons.Visible = false
