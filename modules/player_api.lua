@@ -1,6 +1,6 @@
 local playerapi = {};
+local players = {}
 --init
-playerapi.players = {}
 for i,v in pairs(game.Players:GetChildren()) do table.insert(players, v.Name) end
 game:GetService("Players").PlayerAdded:Connect(function(player) table.insert(players, player.Name) end)
 game:GetService("Players").PlayerRemoving:Connect(function(player) table.remove(players, table.find(players, player.Name)) end)
